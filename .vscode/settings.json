@@ -1,0 +1,8 @@
+{
+  "cSpell.words": ["tamagui", "chromeless"],
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+}
