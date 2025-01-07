@@ -27,7 +27,7 @@ export interface Error {
 }
 
 export type EventsWithIDAllOf = {
-  id: number;
+  id: string;
 };
 
 export interface Events {
@@ -43,16 +43,30 @@ export type EventsWithID = Events & EventsWithIDAllOf;
 
 
   /**
+ * A simple health check endpoint
+ */
+export const healthCheck = <TData = AxiosResponse<void>>(
+     options?: AxiosRequestConfig
+ ): Promise<TData> => {
+    return axios.get(
+      `/health`,options
+    );
+  }
+
+/**
  * Returns a JWT token for a given username and password. This endpoint
 does not require a JWT token to access.
 
  */
 export const getToken = <TData = AxiosResponse<GetToken200>>(
     getTokenBody: GetTokenBody, options?: AxiosRequestConfig
- ): Promise<TData> => {
+ ): Promise<TData> => {const formUrlEncoded = new URLSearchParams();
+formUrlEncoded.append('username', getTokenBody.username)
+formUrlEncoded.append('password', getTokenBody.password)
+
     return axios.post(
       `/auth/token`,
-      getTokenBody,options
+      formUrlEncoded,options
     );
   }
 
@@ -69,5 +83,6 @@ export const listEvents = <TData = AxiosResponse<EventsWithID[]>>(
     );
   }
 
+export type HealthCheckResult = AxiosResponse<void>
 export type GetTokenResult = AxiosResponse<GetToken200>
 export type ListEventsResult = AxiosResponse<EventsWithID[]>

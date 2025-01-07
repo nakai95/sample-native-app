@@ -19,7 +19,7 @@ export default function TabLayout() {
   if (!session) {
     // On web, static rendering will stop here as the user is not authenticated
     // in the headless Node process that the pages are rendered in.
-    return <Redirect href="../sign-in" />;
+    return <Redirect href="/sign-in" />;
   }
 
   return (
@@ -27,7 +27,7 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: theme.green8Dark.val,
+          tabBarActiveTintColor: theme.green10Dark.val,
         }}
       >
         <Tabs.Screen

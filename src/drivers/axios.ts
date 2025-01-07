@@ -8,9 +8,8 @@ const LOCALHOST = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
 const API_BASE_URL = `http://${LOCALHOST}:8080`;
 axios.defaults.baseURL = API_BASE_URL;
 axios.defaults.paramsSerializer = { indexes: null };
-axios.interceptors.request.use(async (config) => {
-  config.withCredentials = true;
 
+axios.interceptors.request.use(async (config) => {
   let token = null;
 
   if (Platform.OS === "web") {
