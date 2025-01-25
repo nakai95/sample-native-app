@@ -19,11 +19,11 @@ export default function SignIn() {
   const { session, isLoading, signIn } = useSession();
   const [userName, changeUserName] = useReducer(
     (_: string, value: string) => value,
-    "demo@example.com"
+    "demo1@example.com"
   );
   const [password, changePassword] = useReducer(
     (_: string, value: string) => value,
-    "#demo"
+    "#demo1"
   );
 
   const handleSignIn = useCallback(async () => {
@@ -57,11 +57,19 @@ export default function SignIn() {
           <Text color="$black6">
             {`Use `}
             <Text color="$black6" fontWeight="bold">
-              demo@example.com
+              demo1@example.com
             </Text>
             {` / `}
             <Text color="$black6" fontWeight="bold">
-              #demo
+              #demo1
+            </Text>
+            {`\nor `}
+            <Text color="$black6" fontWeight="bold">
+              demo2@example.com
+            </Text>
+            {` / `}
+            <Text color="$black6" fontWeight="bold">
+              #demo2
             </Text>
           </Text>
         </XStack>

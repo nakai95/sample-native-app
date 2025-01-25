@@ -26,6 +26,11 @@ export interface Error {
   message: string;
 }
 
+export interface ChatRoom {
+  id: string;
+  name: string;
+}
+
 export type EventsWithIDAllOf = {
   id: string;
 };
@@ -83,6 +88,31 @@ export const listEvents = <TData = AxiosResponse<EventsWithID[]>>(
     );
   }
 
+/**
+ * Returns a list of all chat rooms.
+ * @summary List all chat rooms
+ */
+export const listChatRooms = <TData = AxiosResponse<ChatRoom[]>>(
+     options?: AxiosRequestConfig
+ ): Promise<TData> => {
+    return axios.get(
+      `/chats`,options
+    );
+  }
+
+/**
+ * @summary WebSocket endpoint for chat
+ */
+export const chatWebSocket = <TData = AxiosResponse<unknown>>(
+    id: string, options?: AxiosRequestConfig
+ ): Promise<TData> => {
+    return axios.get(
+      `/ws/${id}`,options
+    );
+  }
+
 export type HealthCheckResult = AxiosResponse<void>
 export type GetTokenResult = AxiosResponse<GetToken200>
 export type ListEventsResult = AxiosResponse<EventsWithID[]>
+export type ListChatRoomsResult = AxiosResponse<ChatRoom[]>
+export type ChatWebSocketResult = AxiosResponse<unknown>

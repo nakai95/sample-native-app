@@ -3,6 +3,7 @@ import {
   createContext,
   type PropsWithChildren,
   useCallback,
+  useState,
 } from "react";
 import { useStorageState } from "@/hooks/shared";
 import { useAuth } from "@/hooks/queries/auth";
@@ -12,11 +13,13 @@ const AuthContext = createContext<{
   signIn: (credentials: Credentials) => Promise<void>;
   signOut: () => void;
   session?: string | null;
+  username?: string | null;
   isLoading: boolean;
 }>({
   signIn: async () => {},
   signOut: () => null,
   session: null,
+  username: null,
   isLoading: false,
 });
 
@@ -36,9 +39,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const { isPending, signIn } = useAuth();
   const [[isInitialLoading, session], setSession] =
     useStorageState(SESSION_STORAGE_KEY);
+  const [username, setUsername] = useState<string | null>(null);
 
   const handleSignIn = useCallback(
     async (credentials: Credentials) => {
+      setUsername(credentials.username);
       // Perform sign-in logic here
       signIn(credentials, {
         onSuccess: (data) => {
@@ -50,6 +55,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   );
 
   const handleSignOut = useCallback(() => {
+    setUsername(null);
     // Perform sign-out logic here
     setSession(null);
   }, [setSession]);
@@ -60,6 +66,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         signIn: handleSignIn,
         signOut: handleSignOut,
         session,
+        username,
         isLoading: isInitialLoading || isPending,
       }}
     >
