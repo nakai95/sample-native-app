@@ -35,7 +35,7 @@ export default function SignIn() {
   }
 
   if (session) {
-    return <Redirect href="/" />;
+    return <Redirect href="/(auth)/(home)" />;
   }
 
   return (
