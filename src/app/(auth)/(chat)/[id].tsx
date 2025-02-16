@@ -1,8 +1,10 @@
 import { useSession } from "@/context/auth";
+import { ChatMessage } from "@/domains/models/chats";
+import { useGetChatMessages } from "@/hooks/queries/chats";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Platform } from "react-native";
 import {
   Avatar,
@@ -16,16 +18,18 @@ import {
   YStack,
 } from "tamagui";
 
-type Message = { id: string; name: string; message: string };
-
 const LOCALHOST = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
 
 export default function Room() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { goBack } = useNavigation();
   const { size } = getTokens();
   const { username } = useSession();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { messages } = useGetChatMessages(id);
+  const [addedMessages, setSetAddedMessages] = useState<ChatMessage[]>([]);
+  const displayedMessages = useMemo(() => {
+    return messages ? [...messages, ...addedMessages] : addedMessages;
+  }, [messages, addedMessages]);
   const socketRef = useRef<WebSocket>();
   const [input, setInput] = useState("");
 
@@ -35,7 +39,7 @@ export default function Room() {
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      setMessages((prev) => [...prev, message]);
+      setSetAddedMessages((prev) => [...prev, message]);
     };
 
     return () => {
@@ -45,7 +49,12 @@ export default function Room() {
 
   const sendMessage = () => {
     if (socketRef.current) {
-      const message = { id: username, name: username, message: input };
+      const message: ChatMessage = {
+        id: "dummy",
+        message: input,
+        roomId: id,
+        userId: username || "",
+      };
       socketRef.current.send(JSON.stringify(message));
       setInput("");
     }
@@ -63,10 +72,10 @@ export default function Room() {
       </XStack>
 
       <FlatList
-        data={messages}
+        data={displayedMessages}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) =>
-          item.id === username ? (
+          item.userId === username ? (
             <MyMessage {...item} />
           ) : (
             <TheirMessage {...item} />
@@ -93,7 +102,7 @@ export default function Room() {
   );
 }
 
-function MyMessage({ message }: Message) {
+function MyMessage({ message }: ChatMessage) {
   return (
     <XStack justifyContent="flex-end" gap="$2" marginBottom="$2">
       <XStack
@@ -109,7 +118,7 @@ function MyMessage({ message }: Message) {
   );
 }
 
-function TheirMessage({ message }: Message) {
+function TheirMessage({ message }: ChatMessage) {
   return (
     <XStack gap="$2" marginBottom="$2">
       <Avatar circular size="$3">
