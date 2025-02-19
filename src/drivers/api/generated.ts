@@ -10,6 +10,17 @@ import type {
   AxiosRequestConfig,
   AxiosResponse
 } from 'axios'
+export type ListChatMessagesParams = {
+/**
+ * The number of messages to return
+ */
+limit?: number;
+/**
+ * The number of messages to skip before starting to collect the result set
+ */
+offset?: number;
+};
+
 export type GetToken200 = {
   token?: string;
 };
@@ -113,10 +124,13 @@ export const listChatRooms = <TData = AxiosResponse<ChatRoom[]>>(
  * @summary List all messages in a chat room
  */
 export const listChatMessages = <TData = AxiosResponse<ChatMessage[]>>(
-    roomId: string, options?: AxiosRequestConfig
+    roomId: string,
+    params?: ListChatMessagesParams, options?: AxiosRequestConfig
  ): Promise<TData> => {
     return axios.get(
-      `/chats/${roomId}/messages`,options
+      `/chats/${roomId}/messages`,{
+    ...options,
+        params: {...params, ...options?.params},}
     );
   }
 

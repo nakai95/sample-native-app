@@ -21,15 +21,24 @@ import {
 const LOCALHOST = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
 
 export default function Room() {
+  const limit = 15;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { goBack } = useNavigation();
   const { size } = getTokens();
   const { username } = useSession();
-  const { messages } = useGetChatMessages(id);
+  const {
+    messages,
+    isFetching,
+    hasNextPage,
+    fetchNextPage,
+    clearChatMessagesCache,
+  } = useGetChatMessages(id, limit);
   const [addedMessages, setSetAddedMessages] = useState<ChatMessage[]>([]);
   const displayedMessages = useMemo(() => {
-    return messages ? [...messages, ...addedMessages] : addedMessages;
+    return messages.reverse().concat(addedMessages);
   }, [messages, addedMessages]);
+
+  const flatListRef = useRef<FlatList>(null);
   const socketRef = useRef<WebSocket>();
   const [input, setInput] = useState("");
 
@@ -44,6 +53,7 @@ export default function Room() {
 
     return () => {
       socket.close();
+      clearChatMessagesCache();
     };
   }, []);
 
@@ -59,6 +69,17 @@ export default function Room() {
       setInput("");
     }
   };
+
+  const handleFetchNextPage = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  const scrollToBottom = () => {
+    flatListRef.current?.scrollToEnd();
+  };
+
   return (
     <YStack flex={1} padding="$2" gap="$2">
       <XStack alignItems="center">
@@ -70,8 +91,9 @@ export default function Room() {
         />
         <H2>Chat</H2>
       </XStack>
-
+      {isFetching && <Text>Loading...</Text>}
       <FlatList
+        ref={flatListRef}
         data={displayedMessages}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) =>
@@ -81,7 +103,9 @@ export default function Room() {
             <TheirMessage {...item} />
           )
         }
+        onEndReached={handleFetchNextPage}
         contentContainerStyle={{ flexGrow: 1 }}
+        onContentSizeChange={scrollToBottom}
       />
       <XStack gap="$2">
         <View flex={1}>

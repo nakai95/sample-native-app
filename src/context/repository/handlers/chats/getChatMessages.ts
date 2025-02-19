@@ -2,14 +2,22 @@ import "@/drivers/axios";
 import { listChatMessages } from "@/drivers/api/generated";
 import { ChatMessage } from "@/domains/models/chats";
 
-export type GetChatMessages = (roomId: string) => Promise<ChatMessage[]>;
+export type GetChatMessages = (
+  roomId: string,
+  limit: number,
+  offset: number
+) => Promise<ChatMessage[]>;
 
 /**
  * チャットメッセージ一覧を取得する
  * @returns チャットメッセージ一覧
  */
-export const getChatMessages: GetChatMessages = async (roomId) => {
-  const { data } = await listChatMessages(roomId);
+export const getChatMessages: GetChatMessages = async (
+  roomId,
+  limit,
+  offset
+) => {
+  const { data } = await listChatMessages(roomId, { limit, offset });
   return data.map((m) => ({
     id: m.id,
     roomId: m.roomId,
